@@ -1,21 +1,16 @@
+import asyncio
+import httpx
 from typing import List
 from app.scrapers.rss_scraper import RSSScraper
 from app.scrapers.sources import news, tech, sports, finance
 
+
 class QueryService:
-    """
-    Aggregates multiple RSS feeds by category and filters by topic.
-    """
 
     def __init__(self):
         self.scraper = RSSScraper()
 
-    def search(self, topic: str, category: str = "news") -> List[dict]:
-        """
-        Search articles by topic and category.
-        """
-        feeds = []
-
+    async def search(self, topic: str, category: str = "news") -> List[dict]:
         if category == "news":
             feeds = news.NEWS_FEEDS
         elif category == "tech":
@@ -27,16 +22,21 @@ class QueryService:
         else:
             feeds = news.NEWS_FEEDS
 
-        all_articles = []
+        async with httpx.AsyncClient(headers={"User-Agent": "Mozilla/5.0"}) as client:
 
-        for feed_url in feeds:
-            articles = self.scraper.fetch_feed(feed_url)
-
-            filtered = [
-                a for a in articles
-                if topic.lower() in a["title"].lower() or topic.lower() in a["summary"].lower()
+            tasks = [
+                self.scraper.fetch_feed(client, feed_url)
+                for feed_url in feeds
             ]
 
-            all_articles.extend(filtered)
+            results = await asyncio.gather(*tasks)
 
-        return all_articles[:10]
+        all_articles = [article for feed in results for article in feed]
+
+        filtered = [
+            a for a in all_articles
+            if topic.lower() in a["title"].lower()
+            or topic.lower() in a["summary"].lower()
+        ]
+
+        return filtered[:10]
