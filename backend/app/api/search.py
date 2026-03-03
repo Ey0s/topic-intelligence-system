@@ -5,9 +5,10 @@ from app.schemas.article_schema import ArticleResponse, Article
 router = APIRouter()
 query_service = QueryService()
 
-@router.route("/")
-def index():
+@router.get("/")
+async def home():
     return {"message": "Welcome to the Topic Intelligence System API. Use /search endpoint to find articles."}
+
 @router.get("/search", response_model=ArticleResponse)
 async def search(
     topic: str = Query(..., description="Search topic"),
