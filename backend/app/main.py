@@ -1,6 +1,9 @@
 from fastapi import FastAPI
-from app.api import search
+from app.core.logger import setup_logger
+from app.api.search import router as search_router
 
-app = FastAPI(title="Topic Intelligence System")
+setup_logger()
 
-app.include_router(search.router)
+app = FastAPI()
+
+app.include_router(search_router)
