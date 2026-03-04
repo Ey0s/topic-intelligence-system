@@ -4,11 +4,13 @@ from typing import List
 from datetime import datetime
 from app.scrapers.rss_scraper import RSSScraper
 from app.scrapers.sources import news, tech, sports, finance
+from app.core.redis_client import RedisClient
 
 
 class QueryService:
     def __init__(self):
         self.scraper = RSSScraper()
+        self.cache = RedisClient()  # ✅ Initialize Redis cache
 
     def compute_score(self, article: dict, topic: str) -> int:
         score = 0
@@ -23,6 +25,12 @@ class QueryService:
         return score
 
     async def search(self, topic: str, category: str = "news") -> List[dict]:
+
+        cache_key = f"{category}:{topic.lower()}"
+
+        cached = self.cache.get(cache_key)
+        if cached:
+            return cached
 
         if category == "news":
             feeds = news.NEWS_FEEDS
@@ -57,5 +65,7 @@ class QueryService:
             ),
             reverse=True
         )
+
+        self.cache.set(cache_key, filtered)
 
         return filtered
