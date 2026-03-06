@@ -1,9 +1,14 @@
 from fastapi import FastAPI
-from app.core.logger import setup_logger
 from app.api.search import router as search_router
+from app.core.logger import setup_logger
+from app.core.database import Base, engine
+
+from app.models.article import Article
 
 setup_logger()
 
-app = FastAPI()
+app = FastAPI(title="CyberRisk Forecasting API")
+
+Base.metadata.create_all(bind=engine)
 
 app.include_router(search_router)

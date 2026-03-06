@@ -3,8 +3,8 @@ from typing import List, Optional
 from datetime import datetime
 
 
-class Article(BaseModel):               
-    id: str                 
+class Article(BaseModel):
+    id: str
     title: str
     link: HttpUrl
     summary: str

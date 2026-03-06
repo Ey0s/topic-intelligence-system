@@ -6,6 +6,8 @@ from datetime import datetime
 from app.scrapers.rss_scraper import RSSScraper
 from app.scrapers.sources import news, tech, sports, finance
 from app.core.redis_client import RedisClient
+from app.core.database import SessionLocal
+from app.models.article import Article as DBArticle
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +75,19 @@ class QueryService:
             ),
             reverse=True
         )
+
+        db = SessionLocal()
+
+        try:
+            for article in filtered:
+                existing = db.get(DBArticle, article["id"])
+                if not existing:
+                    db_article = DBArticle(**article)
+                    db.add(db_article)
+
+            db.commit()
+        finally:
+            db.close()
 
         self.cache.set(cache_key, filtered)
 
