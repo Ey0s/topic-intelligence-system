@@ -6,6 +6,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/news")
+#fall back if post gres fails
 SQLITE_FALLBACK_URL = "sqlite:///./topic_intelligence.db"
 
 logger = logging.getLogger(__name__)
