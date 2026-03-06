@@ -6,17 +6,6 @@ router = APIRouter()
 query_service = QueryService()
 
 @router.get("/")
-async def home():
-    return {"message": "Welcome to the Topic Intelligence System API. Use /search endpoint to find articles."}
-
-from fastapi import APIRouter, Query
-from app.services.query_service import QueryService
-from app.schemas.article_schema import ArticleResponse, Article
-
-router = APIRouter()
-query_service = QueryService()
-
-@router.get("/")
 def Home():
     return {"message": "Welcome to the Topic Intelligence System API. Use /search endpoint to find articles."}
 @router.get("/search", response_model=ArticleResponse)
